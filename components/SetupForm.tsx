@@ -49,7 +49,7 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
   const borderColor = isDiagnosis ? 'border-cyan-500/30' : 'border-amber-500/30';
 
   return (
-    <div className="max-w-xl mx-auto mt-6 pb-24 relative">
+    <div className="max-w-xl mx-auto relative">
         
       {/* Decorative Blur behind card */}
       <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-${themeColor}-500/10 blur-[80px] rounded-full pointer-events-none`}></div>

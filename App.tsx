@@ -211,7 +211,7 @@ const App: React.FC = () => {
           {step === AppStep.HOME ? (
             <LandingPage onNavigate={handleNavigateMode} />
           ) : (
-            <div className="flex-grow p-4 md:p-8 pb-32 pt-28">
+            <div className="flex-grow p-4 md:p-8 pb-20 pt-28 md:pt-32">
               <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {step === AppStep.SETUP && (
                   <SetupForm mode={mode} onStart={handleStart} />
