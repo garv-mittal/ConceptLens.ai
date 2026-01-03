@@ -1,0 +1,5 @@
+{
+  "name": "ConceptLens AI",
+  "description": "An advanced learning gap diagnosis and skill-mapping assistant that analyzes user responses to detect hidden prerequisite gaps and generates personalized learning roadmaps.",
+  "requestFramePermissions": []
+}
