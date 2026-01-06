@@ -1,9 +1,11 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { 
   AnalysisResult, ExperienceLevel, Question, 
-  RevisionResult, RevisionMode, TimeConstraint 
+  RevisionResult, RevisionMode, TimeConstraint, 
+  BugChallenge, BugAnalysisResult
 } from "../types";
-import { CONCEPT_LENS_SYSTEM_PROMPT, REVISION_SYSTEM_PROMPT } from "../constants";
+import { CONCEPT_LENS_SYSTEM_PROMPT, REVISION_SYSTEM_PROMPT, BUG_HUNTER_SYSTEM_PROMPT } from "../constants";
 
 const apiKey = process.env.API_KEY || ""; 
 const ai = new GoogleGenAI({ apiKey });
@@ -187,6 +189,55 @@ const hrSchema = {
   required: ["type", "category", "categoryOverview", "commonQuestions", "interviewerLookingFor", "strongAnswerFramework", "commonMistakes"]
 };
 
+// --- BUG HUNTER SCHEMAS ---
+
+const bugChallengeSchema = {
+  type: Type.OBJECT,
+  properties: {
+    id: { type: Type.STRING },
+    title: { type: Type.STRING },
+    scenario: { type: Type.STRING },
+    language: { type: Type.STRING },
+    buggyCode: { type: Type.STRING },
+    hint: { type: Type.STRING },
+  },
+  required: ["id", "title", "scenario", "language", "buggyCode", "hint"]
+};
+
+const bugAnalysisSchema = {
+  type: Type.OBJECT,
+  properties: {
+    success: { type: Type.BOOLEAN },
+    userFeedback: { type: Type.STRING },
+    bugLocation: { type: Type.STRING },
+    correctedCode: { type: Type.STRING },
+    conceptRevision: {
+      type: Type.OBJECT,
+      properties: {
+        name: { type: Type.STRING },
+        theory: { type: Type.STRING },
+        practicality: { type: Type.STRING }
+      },
+      required: ["name", "theory", "practicality"]
+    },
+    relatedPatterns: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          explanation: { type: Type.STRING },
+          badCode: { type: Type.STRING },
+          goodCode: { type: Type.STRING }
+        },
+        required: ["title", "explanation", "badCode", "goodCode"]
+      }
+    }
+  },
+  required: ["success", "userFeedback", "bugLocation", "correctedCode", "conceptRevision", "relatedPatterns"]
+};
+
+
 // --- API CALLS ---
 
 export const generateConceptualQuestions = async (
@@ -327,6 +378,82 @@ export const generateRevisionContent = async (
 
   } catch (error) {
     console.error("Error generating revision content:", error);
+    return null;
+  }
+};
+
+// --- BUG HUNTER SERVICE METHODS ---
+
+export const generateBugChallenge = async (
+  domain: string,
+  level: ExperienceLevel
+): Promise<BugChallenge | null> => {
+  try {
+    const model = "gemini-3-flash-preview";
+    const prompt = `
+      Domain: ${domain}
+      Level: ${level}
+      Task: Create a realistic code snippet (10-25 lines) that contains a subtle but critical bug.
+      Common bugs: State mutation, race condition, off-by-one, memory leak, security vulnerability (XSS/SQLi), or ineffective error handling.
+      The code should LOOK correct at first glance.
+    `;
+
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+      config: {
+        systemInstruction: BUG_HUNTER_SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+        responseSchema: bugChallengeSchema,
+      },
+    });
+
+    if (!response.text) return null;
+    return JSON.parse(response.text) as BugChallenge;
+
+  } catch (error) {
+    console.error("Error generating bug challenge:", error);
+    return null;
+  }
+};
+
+export const analyzeBugSolution = async (
+  challenge: BugChallenge,
+  userSolution: string
+): Promise<BugAnalysisResult | null> => {
+  try {
+    const model = "gemini-3-flash-preview";
+    const prompt = `
+      Original Buggy Code: 
+      \`\`\`${challenge.language}
+      ${challenge.buggyCode}
+      \`\`\`
+      
+      User's Attempt to Fix/Explain:
+      "${userSolution}"
+
+      Task:
+      1. Did the user identify the actual bug? (Be strict. They must find the core issue).
+      2. Provide the corrected code.
+      3. Explain the concept (Revision) with Practicality.
+      4. Provide 2 extra examples (Bad vs Good) of similar patterns.
+    `;
+
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+      config: {
+        systemInstruction: BUG_HUNTER_SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+        responseSchema: bugAnalysisSchema,
+      },
+    });
+
+    if (!response.text) return null;
+    return JSON.parse(response.text) as BugAnalysisResult;
+
+  } catch (error) {
+    console.error("Error analyzing bug solution:", error);
     return null;
   }
 };

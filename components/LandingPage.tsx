@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { 
   Sparkles, Zap, Brain, Target, ChevronRight, 
   Code2, Database, Layout, Smartphone, GitBranch, Terminal,
   ArrowRight, CheckCircle2, Search, Layers, FileJson,
-  Lightbulb, Puzzle, Box
+  Lightbulb, Puzzle, Box, Bug
 } from 'lucide-react';
 import { AppMode } from '../types';
 import { APP_NAME } from '../constants';
@@ -22,7 +23,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         {/* Deep glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-200/40 dark:bg-indigo-900/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]"></div>
-        <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-cyan-200/40 dark:bg-cyan-900/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen"></div>
+        <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-cyan-200/40 dark:bg-cyan-900/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[12000ms]"></div>
       </div>
 
       {/* --- HERO SECTION --- */}
@@ -30,7 +31,7 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
         <div className="flex flex-col items-center text-center relative z-10">
           
           {/* Badge */}
-          <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0ms' }}>
+          <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 backdrop-blur-md text-cyan-700 dark:text-cyan-300 text-xs font-bold tracking-widest uppercase mb-8 shadow-2xl shadow-cyan-900/10 dark:shadow-cyan-900/20 hover:border-cyan-500/50 transition-colors cursor-default">
               <Sparkles className="w-3 h-3 animate-pulse" />
               AI Technical Mentor v1.3
@@ -38,18 +39,18 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
           </div>
           
           {/* Headline */}
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] mb-8 tracking-tight max-w-4xl opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white leading-[1.1] mb-8 tracking-tight max-w-4xl opacity-0 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             Master the <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 dark:from-cyan-400 dark:via-blue-400 dark:to-indigo-400">Mental Models</span><br /> 
             Behind the Code.
           </h1>
           
           {/* Subtext */}
-          <p className="text-slate-600 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+          <p className="text-slate-600 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 opacity-0 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
             Don't just memorize syntax. Detect hidden learning gaps, visualize your knowledge graph, and prepare for senior-level interviews with deep diagnostic AI.
           </p>
           
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-5 w-full justify-center opacity-0 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+          <div className="flex flex-col sm:flex-row gap-5 w-full justify-center opacity-0 animate-fade-in-up" style={{ animationDelay: '700ms' }}>
             <button
               onClick={() => onNavigate(AppMode.DIAGNOSIS)}
               className="group relative px-8 py-4 bg-gradient-to-br from-cyan-600 to-blue-700 text-white rounded-xl font-bold shadow-xl shadow-cyan-900/20 hover:shadow-cyan-500/30 transition-all hover:-translate-y-1 overflow-hidden"
@@ -68,6 +69,14 @@ const LandingPage: React.FC<Props> = ({ onNavigate }) => {
             >
               <Zap className="w-5 h-5 text-amber-500 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors" />
               Rapid Revision
+            </button>
+            
+            <button
+              onClick={() => onNavigate(AppMode.BUG_HUNTER)}
+              className="group px-8 py-4 bg-white/50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500/50 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl font-semibold transition-all hover:-translate-y-1 flex items-center justify-center gap-3 backdrop-blur-sm"
+            >
+              <Bug className="w-5 h-5 text-emerald-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+              Bug Hunter
             </button>
           </div>
         </div>

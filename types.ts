@@ -1,3 +1,5 @@
+
+
 export enum ExperienceLevel {
   Beginner = "Beginner",
   Intermediate = "Intermediate",
@@ -6,7 +8,8 @@ export enum ExperienceLevel {
 
 export enum AppMode {
   DIAGNOSIS = "DIAGNOSIS",
-  REVISION = "REVISION"
+  REVISION = "REVISION",
+  BUG_HUNTER = "BUG_HUNTER"
 }
 
 export enum RevisionMode {
@@ -114,13 +117,66 @@ export interface HRResult {
 
 export type RevisionResult = TechConceptsResult | TechQuestionsResult | HRResult;
 
+// --- Bug Hunter Types ---
+
+export interface BugChallenge {
+  id: string;
+  title: string;
+  scenario: string;
+  language: string;
+  buggyCode: string;
+  hint: string;
+}
+
+export interface BugPatternExample {
+  title: string;
+  explanation: string;
+  badCode: string;
+  goodCode: string;
+}
+
+export interface BugAnalysisResult {
+  success: boolean;
+  userFeedback: string;
+  bugLocation: string; // Line numbers or specific function
+  correctedCode: string;
+  conceptRevision: {
+    name: string;
+    theory: string;
+    practicality: string; // Why this matters in production
+  };
+  relatedPatterns: BugPatternExample[]; // 2 extra examples
+}
+
+// --- Lab Types ---
+
+export interface LabResult {
+  conceptTitle: string;
+  analogy: {
+    story: string;
+    mapping: string;
+  };
+  codeImplementation: {
+    language: string;
+    code: string;
+    breakdown: string[];
+  };
+  experiment: {
+    scenario: string;
+    outcome: string;
+  };
+}
+
 export enum AppStep {
   HOME,
   SETUP,
   GENERATING_QUESTIONS, // Used for Diagnosis
   GENERATING_REVISION,  // Used for Revision
+  GENERATING_BUG,       // Used for Bug Hunter Step 1
   QUESTIONNAIRE,
-  ANALYZING,
-  RESULTS,
-  REVISION_RESULTS // Display Revision
+  BUG_CHALLENGE,        // Displaying the bug to user
+  ANALYZING,            // Analyzing Diagnosis OR Bug Solution
+  RESULTS,              // Diagnosis Results
+  REVISION_RESULTS,     // Revision Results
+  BUG_RESULTS           // Bug Hunter Results
 }

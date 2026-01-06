@@ -1,13 +1,15 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { AppStep, ExperienceLevel, Question, AnalysisResult, AppMode, RevisionResult, RevisionMode, TimeConstraint } from './types';
+import { AppStep, ExperienceLevel, Question, AnalysisResult, AppMode, RevisionResult, RevisionMode, TimeConstraint, BugChallenge, BugAnalysisResult } from './types';
 import { APP_NAME } from './constants';
-import { generateConceptualQuestions, analyzeUserGaps, generateRevisionContent } from './services/geminiService';
+import { generateConceptualQuestions, analyzeUserGaps, generateRevisionContent, generateBugChallenge, analyzeBugSolution } from './services/geminiService';
 import LandingPage from './components/LandingPage';
 import BottomNav from './components/BottomNav';
 import SetupForm from './components/SetupForm';
 import Questionnaire from './components/Questionnaire';
 import AnalysisDashboard from './components/AnalysisDashboard';
 import RevisionDashboard from './components/RevisionDashboard';
+import BugHunterDashboard from './components/BugHunterDashBoard';
 import LoadingScreen from './components/LoadingScreen';
 import { ScanSearch, Sun, Moon, Code2, Database, Cpu, Globe, Server, Terminal, Braces } from 'lucide-react';
 
@@ -52,6 +54,11 @@ const App: React.FC = () => {
   // Revision State
   const [revisionResult, setRevisionResult] = useState<RevisionResult | null>(null);
 
+  // Bug Hunter State
+  const [bugChallenge, setBugChallenge] = useState<BugChallenge | null>(null);
+  const [bugResult, setBugResult] = useState<BugAnalysisResult | null>(null);
+  const [isBugAnalyzing, setIsBugAnalyzing] = useState(false);
+
   // Toggle Theme
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -86,6 +93,8 @@ const App: React.FC = () => {
     setStep(AppStep.HOME);
     setAnalysisResult(null);
     setRevisionResult(null);
+    setBugChallenge(null);
+    setBugResult(null);
     setQuestions([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -95,6 +104,8 @@ const App: React.FC = () => {
     setStep(AppStep.SETUP);
     setAnalysisResult(null);
     setRevisionResult(null);
+    setBugChallenge(null);
+    setBugResult(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -120,8 +131,7 @@ const App: React.FC = () => {
         console.error("Failed to generate questions", error);
         setStep(AppStep.SETUP);
       }
-    } else {
-      // Revision Mode
+    } else if (selectedMode === AppMode.REVISION) {
       setStep(AppStep.GENERATING_REVISION);
       try {
         const content = await generateRevisionContent(selectedDomain, selectedLevel, revMode, time, focusArea);
@@ -134,6 +144,20 @@ const App: React.FC = () => {
       } catch (error) {
         console.error("Revision Error", error);
         setStep(AppStep.SETUP);
+      }
+    } else if (selectedMode === AppMode.BUG_HUNTER) {
+      setStep(AppStep.GENERATING_BUG);
+      try {
+        const challenge = await generateBugChallenge(selectedDomain, selectedLevel);
+        if(challenge) {
+          setBugChallenge(challenge);
+          setStep(AppStep.BUG_CHALLENGE);
+        } else {
+           throw new Error("Failed to generate bug challenge");
+        }
+      } catch (error) {
+         console.error("Bug Hunter Error", error);
+         setStep(AppStep.SETUP);
       }
     }
   };
@@ -151,6 +175,22 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Analysis Error", error);
       setStep(AppStep.QUESTIONNAIRE);
+    }
+  };
+
+  const handleBugAnalysis = async (userSolution: string) => {
+    if(!bugChallenge) return;
+    setIsBugAnalyzing(true);
+    try {
+      const result = await analyzeBugSolution(bugChallenge, userSolution);
+      if(result) {
+        setBugResult(result);
+        setStep(AppStep.BUG_RESULTS);
+      }
+    } catch (error) {
+      console.error("Bug Analysis Error", error);
+    } finally {
+      setIsBugAnalyzing(false);
     }
   };
 
@@ -225,6 +265,10 @@ const App: React.FC = () => {
                   <LoadingScreen text={`Compiling rapid revision notes for ${domain}...`} />
                 )}
 
+                {step === AppStep.GENERATING_BUG && (
+                  <LoadingScreen text="Planting a subtle bug in the mainframe..." />
+                )}
+
                 {step === AppStep.QUESTIONNAIRE && (
                   <Questionnaire questions={questions} onSubmit={handleAnalysis} />
                 )}
@@ -239,6 +283,16 @@ const App: React.FC = () => {
 
                 {step === AppStep.REVISION_RESULTS && revisionResult && (
                    <RevisionDashboard result={revisionResult} onReset={() => setStep(AppStep.SETUP)} />
+                )}
+
+                {(step === AppStep.BUG_CHALLENGE || step === AppStep.BUG_RESULTS) && bugChallenge && (
+                  <BugHunterDashboard 
+                    challenge={bugChallenge} 
+                    result={bugResult} 
+                    onAnalyze={handleBugAnalysis}
+                    onReset={() => setStep(AppStep.SETUP)}
+                    isAnalyzing={isBugAnalyzing}
+                  />
                 )}
               </div>
             </div>

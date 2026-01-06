@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { DOMAINS, HR_CATEGORIES } from '../constants';
 import { ExperienceLevel, AppMode, RevisionMode, TimeConstraint } from '../types';
-import { Sparkles, Zap, BookOpen, MessageSquare, Users, Clock, ChevronDown, Check, Box, Fingerprint } from 'lucide-react';
+import { Sparkles, Zap, BookOpen, MessageSquare, Users, Clock, ChevronDown, Check, Box, Fingerprint, Bug } from 'lucide-react';
 
 interface Props {
   mode: AppMode;
@@ -42,11 +43,31 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
 
   const isRevision = mode === AppMode.REVISION;
   const isDiagnosis = mode === AppMode.DIAGNOSIS;
+  const isBugHunter = mode === AppMode.BUG_HUNTER;
 
   // Visual Theme Configuration
-  const themeColor = isDiagnosis ? 'cyan' : 'amber';
-  const glowColor = isDiagnosis ? 'shadow-cyan-500/20' : 'shadow-amber-500/20';
-  const borderColor = isDiagnosis ? 'border-cyan-500/30' : 'border-amber-500/30';
+  let themeColor = 'cyan';
+  let glowColor = 'shadow-cyan-500/20';
+  let borderColor = 'border-cyan-500/30';
+  let Icon = Sparkles;
+  let title = 'Skill Diagnosis';
+  let subtitle = 'Uncover hidden gaps in your mental models with AI-driven inquiry.';
+
+  if (isRevision) {
+    themeColor = 'amber';
+    glowColor = 'shadow-amber-500/20';
+    borderColor = 'border-amber-500/30';
+    Icon = Zap;
+    title = 'Rapid Revision';
+    subtitle = 'Targeted preparation for your upcoming technical interview.';
+  } else if (isBugHunter) {
+    themeColor = 'emerald';
+    glowColor = 'shadow-emerald-500/20';
+    borderColor = 'border-emerald-500/30';
+    Icon = Bug;
+    title = 'Bug Hunter';
+    subtitle = 'Test your code literacy. Find the hidden bug before it breaks production.';
+  }
 
   return (
     <div className="max-w-xl mx-auto relative">
@@ -69,21 +90,15 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
            <div className="relative inline-block mb-6 group">
              <div className={`absolute inset-0 bg-${themeColor}-500 blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
              <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center bg-gradient-to-br from-white to-slate-100 dark:from-slate-800 dark:to-slate-900 border ${borderColor} shadow-lg animate-float`}>
-               {isDiagnosis ? (
-                  <Sparkles className="w-10 h-10 text-cyan-500 dark:text-cyan-400" />
-               ) : (
-                  <Zap className="w-10 h-10 text-amber-500 dark:text-amber-400" />
-               )}
+                <Icon className={`w-10 h-10 text-${themeColor}-500 dark:text-${themeColor}-400`} />
              </div>
            </div>
            
            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
-             {isDiagnosis ? 'Skill Diagnosis' : 'Rapid Revision'}
+             {title}
            </h1>
            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto leading-relaxed">
-             {isDiagnosis 
-               ? 'Uncover hidden gaps in your mental models with AI-driven inquiry.'
-               : 'Targeted preparation for your upcoming technical interview.'}
+             {subtitle}
            </p>
         </div>
 
@@ -92,8 +107,8 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
           {/* --- REVISION MODE SELECTOR --- */}
           {isRevision && (
             <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-               <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Prep Mode</label>
-               <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-100 dark:bg-slate-950/50 rounded-2xl border border-slate-200 dark:border-slate-800/50">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Prep Mode</label>
+              <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-100 dark:bg-slate-950/50 rounded-2xl border border-slate-200 dark:border-slate-800/50">
                 {[
                   { m: RevisionMode.CONCEPTS, icon: BookOpen, label: "Concepts" },
                   { m: RevisionMode.QUESTIONS, icon: MessageSquare, label: "Questions" },
@@ -125,7 +140,7 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
             </div>
           )}
 
-          {/* --- DOMAIN SELECTION --- */}
+          {/* --- DOMAIN SELECTION (ALL MODES) --- */}
           {(!isRevision || revMode !== RevisionMode.HR) ? (
             <div className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Technical Domain</label>
@@ -156,8 +171,8 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
               )}
             </div>
           ) : (
-             /* --- HR CATEGORY SELECTION --- */
-             <div className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+            /* --- HR CATEGORY SELECTION --- */
+            <div className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">HR Category</label>
                 <div className="relative group">
                   <select
@@ -171,7 +186,7 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
                     <ChevronDown className="w-5 h-5" />
                   </div>
                 </div>
-             </div>
+            </div>
           )}
 
           {/* --- LEVEL SELECTION --- */}
@@ -181,26 +196,34 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
             </label>
             <div className="grid grid-cols-3 gap-3">
               {Object.values(ExperienceLevel).map((lvl) => {
-                 const isActive = level === lvl;
-                 const activeClass = isDiagnosis 
-                   ? 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400 shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]' 
-                   : 'bg-amber-50 dark:bg-amber-900/20 border-amber-500 text-amber-700 dark:text-amber-400 shadow-[0_0_15px_-3px_rgba(245,158,11,0.3)]';
-                 
-                 return (
+                const isActive = level === lvl;
+                // Color Logic
+                let activeClass = 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-500 text-cyan-700 dark:text-cyan-400';
+                let dotColor = 'bg-cyan-500';
+                
+                if (isRevision) {
+                   activeClass = 'bg-amber-50 dark:bg-amber-900/20 border-amber-500 text-amber-700 dark:text-amber-400';
+                   dotColor = 'bg-amber-500';
+                } else if (isBugHunter) {
+                   activeClass = 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-700 dark:text-emerald-400';
+                   dotColor = 'bg-emerald-500';
+                }
+                
+                return (
                   <button
                     key={lvl}
                     type="button"
                     onClick={() => setLevel(lvl)}
                     className={`relative py-3 px-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
                       isActive
-                        ? activeClass + ' border-2'
+                        ? activeClass + ' border-2 shadow-lg'
                         : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
                     {lvl}
-                    {isActive && <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${isDiagnosis ? 'bg-cyan-500' : 'bg-amber-500'}`}></div>}
+                    {isActive && <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${dotColor}`}></div>}
                   </button>
-                 );
+                );
               })}
             </div>
           </div>
@@ -234,14 +257,14 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
 
               {revMode !== RevisionMode.HR && (
                 <div>
-                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Focus Area (Optional)</label>
-                   <input
-                     type="text"
-                     value={focusArea}
-                     onChange={(e) => setFocusArea(e.target.value)}
-                     placeholder="e.g. Async/Await, Joins, Memory Mgmt..."
-                     className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500/50 outline-none transition-colors"
-                   />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Focus Area (Optional)</label>
+                  <input
+                    type="text"
+                    value={focusArea}
+                    onChange={(e) => setFocusArea(e.target.value)}
+                    placeholder="e.g. Async/Await, Joins, Memory Mgmt..."
+                    className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500/50 outline-none transition-colors"
+                  />
                 </div>
               )}
             </div>
@@ -254,18 +277,18 @@ const SetupForm: React.FC<Props> = ({ mode, onStart }) => {
               className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group ${
                 isDiagnosis
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-900/20'
-                : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-amber-900/20'
+                : isRevision 
+                ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-amber-900/20'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-900/20'
               }`}
             >
               {/* Shimmer Effect */}
               <div className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent z-10"></div>
               
               <span className="relative z-20 flex items-center justify-center gap-2">
-                {isDiagnosis ? (
-                   <>Start Assessment <Sparkles className="w-5 h-5" /></>
-                ) : (
-                   <>Generate Notes <Zap className="w-5 h-5" /></>
-                )}
+                {isDiagnosis && <>Start Assessment <Sparkles className="w-5 h-5" /></>}
+                {isRevision && <>Generate Notes <Zap className="w-5 h-5" /></>}
+                {isBugHunter && <>Start Hunting <Bug className="w-5 h-5" /></>}
               </span>
             </button>
           </div>
