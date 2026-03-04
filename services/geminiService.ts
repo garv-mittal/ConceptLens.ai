@@ -245,7 +245,7 @@ export const generateConceptualQuestions = async (
   level: ExperienceLevel
 ): Promise<Question[]> => {
   try {
-    const model = "gemini-3-flash-preview"; 
+    const model = "gemini-3.1-flash-lite-preview"; 
     const prompt = `Generate 3 deep, conceptual, non-trivial interview-style questions for a ${level} level candidate in the domain of ${domain}. 
     The questions should test underlying mental models, not syntax or memory.`;
 
@@ -276,7 +276,7 @@ export const analyzeUserGaps = async (
   qaPairs: { question: string; answer: string }[]
 ): Promise<AnalysisResult | null> => {
   try {
-    const model = "gemini-3-flash-preview"; 
+    const model = "gemini-3.1-flash-lite-preview"; 
     let qaString = "";
     qaPairs.forEach((qa, idx) => {
       qaString += `Q${idx + 1}: ${qa.question}\nA${idx + 1}: ${qa.answer}\n\n`;
@@ -317,7 +317,7 @@ export const generateRevisionContent = async (
   focusArea?: string
 ): Promise<RevisionResult | null> => {
   try {
-    const model = "gemini-3-flash-preview";
+    const model = "gemini-3.1-flash-lite-preview";
     
     // Construct Prompt based on Mode
     let prompt = "";
@@ -389,7 +389,7 @@ export const generateBugChallenge = async (
   level: ExperienceLevel
 ): Promise<BugChallenge | null> => {
   try {
-    const model = "gemini-3-flash-preview";
+    const model = "gemini-3.1-flash-lite-preview";
     const prompt = `
       Domain: ${domain}
       Level: ${level}
@@ -422,7 +422,7 @@ export const analyzeBugSolution = async (
   userSolution: string
 ): Promise<BugAnalysisResult | null> => {
   try {
-    const model = "gemini-3-flash-preview";
+    const model = "gemini-3.1-flash-lite-preview";
     const prompt = `
       Original Buggy Code: 
       \`\`\`${challenge.language}
